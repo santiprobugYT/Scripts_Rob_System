@@ -1,0 +1,35 @@
+local Gui = script.Parent
+local Frame = Gui.Frame
+local CashLabel = Frame.Cash
+local Cash = CashLabel.CashInProcces
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local Teams = game:GetService("Teams")
+local Crim = Teams.Criminal
+local RS = game:GetService("ReplicatedStorage")
+local Events = RS:WaitForChild("Events")
+local VehicleFailed = Events:WaitForChild("VehicleFailed")
+local Success = Gui.Success
+
+while wait(0.1) do
+	if player.Team == Crim then
+		Gui.Enabled = true
+		CashLabel.Text = Cash.Value
+	else
+		Cash.Value = 0
+		CashLabel.Text = "0"
+		Gui.Enabled = false
+	end
+end
+
+VehicleFailed.OnClientEvent:Connect(function(player, Arg)
+	if Arg == "EnteringFailed" then
+		Success.Text = "This vehicle is LOCKED. Ask the owner to unlock it"
+		Success.TextColor3 = Color3.fromRGB(255, 0, 0)
+		Success.Visible = true
+		wait(5)
+		Success.Text = "Cash recivied: $99999"
+		Success.TextColor3 = Color3.fromRGB(85, 170, 0)
+		Success.Visible = false
+	end
+end)
