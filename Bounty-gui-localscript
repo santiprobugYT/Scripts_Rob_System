@@ -1,0 +1,17 @@
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local ldr = plr.Character
+local Bounty = ldr:WaitForChild("Bounty")
+local Gui = script.Parent
+local Frame = Gui.Frame
+local Text = Frame.TextLabel
+
+while task.wait(0.1) do
+	if Bounty.Value > 1 then
+		Frame.Visible = true
+		Text.Text = "Bounty : $".. Bounty.Value
+	else
+		Frame.Visible = false
+		Text.Text = "Bounty : $"
+	end
+end
