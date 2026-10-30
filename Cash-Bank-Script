@@ -1,0 +1,66 @@
+local teamName = "Criminal"
+
+local tiempoDeEspera = 1
+
+local jugadorTocandoLaParte = {}
+
+local function verificaTocar(player)
+	return jugadorTocandoLaParte[player]
+end
+
+local function tiempoDeEsperaCumplido(player)
+	local full = 2000
+
+	if player then
+		local playerGui = player:FindFirstChild("PlayerGui")
+
+		if playerGui then
+			local money = script.Parent.Cash
+			local RobGui = playerGui.RobGui
+			local cashInProcces = RobGui.Frame.Cash.CashInProcces
+			local CashMax = RobGui.Frame.Cash.MaxMoneyBank
+			RobGui.Frame.Visible = true
+			if cashInProcces.Value <= CashMax.Value then
+				cashInProcces.Value = cashInProcces.Value + money.Value
+				RobGui.Frame.Visible = true
+				if cashInProcces.Value > CashMax.Value then
+
+					cashInProcces.Value = full
+					RobGui.Frame.Visible = true
+				end
+			end
+		end
+	end
+end
+
+local function onTouched(hit)
+	local character = hit.Parent
+	local player = game.Players:GetPlayerFromCharacter(character)
+
+	if player and player.Team.Name == teamName then
+		if not verificaTocar(player) then
+			jugadorTocandoLaParte[player] = true
+			
+			local tiempoTranscurrido = 0
+			while tiempoTranscurrido < tiempoDeEspera and verificaTocar(player) do
+				tiempoTranscurrido = tiempoTranscurrido + wait(1)
+				if tiempoTranscurrido >= tiempoDeEspera and verificaTocar(player) then
+					tiempoDeEsperaCumplido(player)
+					tiempoTranscurrido = 0
+				end
+			end
+		end
+	end
+end
+
+local function onTouchEnded(hit)
+	local character = hit.Parent
+	local player = game.Players:GetPlayerFromCharacter(character)
+
+	if player then
+		jugadorTocandoLaParte[player] = false
+	end
+end
+
+script.Parent.Touched:Connect(onTouched)
+script.Parent.TouchEnded:Connect(onTouchEnded)
