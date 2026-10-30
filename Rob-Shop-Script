@@ -1,0 +1,70 @@
+local Prox = script.Parent.ProximityPrompt
+local Cash = script.Parent.Cash
+local Open = false
+local Team = "Criminal"
+local CoinSound = script.Parent.CoinSound
+local Sound = script.Parent.DeliveredSound
+local Timer = script.Parent.Timer
+local TextLabel = script.Parent.BillboardGui.TextLabel
+local RS = game:GetService("ReplicatedStorage")
+local Events = RS:WaitForChild("Events")
+local Image = script.Parent.BillboardGuiI.ImageLabel
+
+function Rob(player)
+	if not player then return end
+
+	if player then
+
+		local playerGui = player:FindFirstChild("PlayerGui")
+
+		if playerGui then
+			local leaderstats = player.leaderstats
+			local money = leaderstats.Cash
+			local RobGui = playerGui.RobGui
+			local Success = RobGui:WaitForChild("Success")
+			local Bounty = player.Character.Bounty
+			Bounty.Value += (Cash.Value / 4) + 2
+			money.Value += Cash.Value
+			Success.Visible = true
+			Success.Text = "Cash recivied: $".. Cash.Value
+			CoinSound.TimePosition = 0
+			CoinSound.Playing = true
+			Sound.TimePosition = 0
+			Sound.Playing = true
+			Open = false
+			task.wait(5)
+			Success.Visible = false
+		end
+	end
+end
+
+Prox.Triggered:Connect(function(player)
+	if Open and player.Team.Name == Team then
+		Rob(player)
+	elseif not Open and player.Team.Name == Team then
+		TextLabel.Text = "CLOSED"
+		TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+	else
+		TextLabel.Text = "YOU NEED BE CRIMINAL"
+		TextLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
+		Image.ImageColor3 = Color3.fromRGB(255, 0, 0)
+	end
+end)
+
+while task.wait(1) do
+	if not Open then
+		Timer.Value -= 1
+		TextLabel.Text = "Closed " .. Timer.Value
+		TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+		Image.ImageColor3 = Color3.fromRGB(255, 0, 0)
+		Image.Visible = false
+		if Timer.Value <= 0 then
+			Open = true
+			Timer.Value = 250
+			TextLabel.Text = "Open"
+			TextLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+			Image.ImageColor3 = Color3.fromRGB(0,255,0)
+			Image.Visible = true
+		end
+	end
+end
