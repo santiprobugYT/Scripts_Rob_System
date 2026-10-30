@@ -41,3 +41,19 @@ Handler.OnServerEvent:Connect(function(player, team)
 	equipClothes(player.Character, Teams[team])
 	player:LoadCharacter()
 end)
+
+workspace.Map.CrimChanger.Touched:Connect(function(Object)
+	if Players:GetPlayerFromCharacter(Object.Parent) then
+		local Player = Players:GetPlayerFromCharacter(Object.Parent)
+		if Player.Team == Teams.Prisoner then
+			if d == false then
+				d = true
+				Player.Team = Teams.Criminal
+				Events.Arrest:FireAllClients("PlayerTeam", Player.Character.HumanoidRootPart.ProximityPrompt)
+				Events.Arrest:FireClient(Player, "Disable", Player)
+				task.wait(8)
+				d = false
+			end
+		end
+	end
+end)
