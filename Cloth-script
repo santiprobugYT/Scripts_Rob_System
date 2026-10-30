@@ -1,0 +1,43 @@
+local RS = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local Events = RS:WaitForChild("Events")
+local Handler = Events:WaitForChild("Handler")
+local Teams = game:GetService("Teams")
+
+local function equipClothes(Character, Team)
+	if Team == "Prisoner" then
+		Character.Shirt:Destroy()
+		Character.Pants:Destroy()
+		local shirt = RS.Prisoner.Shirt:Clone()
+		shirt.Parent = Character
+		local pants = RS.Prisoner.Pants:Clone()
+		pants.Parent = Character
+
+	elseif Team == "Police" then
+		Character.Shirt:Destroy()
+		Character.Pants:Destroy()
+		local shirt = RS.Police.Shirt:Clone()
+		shirt.Parent = Character
+		local pants = RS.Police.Pants:Clone()
+		pants.Parent = Character
+	end
+end
+
+Players.PlayerAdded:Connect(function(Player)
+	Player.CharacterAdded:Connect(function(character)
+		if Player.Team.Name == "Prisoner" then
+			repeat task.wait() until character.Shirt and character.Pants
+			equipClothes(character, "Prisoner")
+
+		elseif Player.Team.Name == "Police" then
+			repeat task.wait() until character.Shirt and character.Pants
+			equipClothes(character, "Police")
+		end
+	end)
+end)
+
+Handler.OnServerEvent:Connect(function(player, team)
+	player.Team = Teams[team]
+	equipClothes(player.Character, Teams[team])
+	player:LoadCharacter()
+end)
