@@ -1,0 +1,79 @@
+local Players = game:GetService("Players")
+local datastore = game:GetService("DataStoreService")
+local ds1 = datastore:GetDataStore("Burglars")
+local Lighting = game:GetService("Lighting")
+local RS = game:GetService("ReplicatedStorage")
+local Events = RS:WaitForChild("Events")
+
+local Map = workspace.Map
+local Shop = Map.ShopPart.ProximityPrompt
+local Shop0 = Map.ShopPart0.ProximityPrompt
+
+
+local Paycheck = Events:WaitForChild("Paycheck")
+local CashAmount = 1200
+local Time = 5
+
+
+Players.PlayerAdded:Connect(function(plr)
+	local Leaderstats = Instance.new("Folder", plr)
+	Leaderstats.Name = "leaderstats"
+
+	local Cash = Instance.new("NumberValue", Leaderstats)
+	Cash.Name = "Cash"
+	
+	local success, err = pcall(function()
+		Cash.Value = ds1:GetAsync(plr.UserId.." -Dinero") or 3000
+		ds1:SetAsync(plr.UserId.. " -Dinero", Cash.Value)
+		
+		Cash.Changed:connect(function()
+			ds1:SetAsync(plr.UserId.." -Dinero", Cash.Value)
+		end)
+	end)
+	
+	if success then
+		print("Entrada: epa")
+	else
+		warn("no se guardo  ".. plr .."   ".. err)
+	end
+	
+	while task.wait(Time) do
+		if Lighting.ClockTime >= 7 and Lighting.ClockTime <= 7.05 then
+			if plr.Team.Name == "Police" then
+				Cash.Value += CashAmount
+				Paycheck:FireClient(plr, CashAmount)
+			end
+		end
+	end
+end)
+
+Events.ShopEvent.OnServerEvent:Connect(function(Player, ItemName, ItemPrice)
+	if not Player then return end
+	if not ItemName then return end
+	if not ItemPrice then return end
+	if Player.leaderstats.Cash.Value >= tonumber(ItemPrice) then
+		local ItemClone = RS.ShopItems[ItemName]:Clone()
+		ItemClone.Parent = Player.Backpack
+		Player.leaderstats.Cash.Value -= tonumber(ItemPrice)
+	end
+end)
+
+Shop.Triggered:Connect(function(Player)
+	Events.ShopEvent:FireClient(Player, "Open")
+end)
+
+Shop0.Triggered:Connect(function(Player)
+	Events.ShopEvent:FireClient(Player, "Open")
+end)
+
+Players.PlayerRemoving:Connect(function(player) 
+	local success, err = pcall(function()
+		ds1:SetAsync(player.UserId.. " -Dinero", player.leaderstats.Cash.Value)
+	end)
+	
+	if success then
+		print("Cierre: epa")
+	else
+		warn("no se guardo  ".. player .."   ".. err)
+	end
+end)
